@@ -4,20 +4,16 @@
   boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.initrd.luks.devices."luks".device = "/dev/disk/by-label/luks";
-  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback rpool/local/root@empty";
+  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback rpool/yeet@yeeted";
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
   hardware.cpu.intel.updateMicrocode = true;
   hardware.enableRedistributableFirmware = true;
-  # fileSystems."/boot".device = "/dev/disk/by-label/boot";
-  # fileSystems."/" = { fsType = "zfs"; device = "rpool/yeet"; };
-  # fileSystems."/keep" = { fsType = "zfs"; device = "rpool/keep"; };
   fileSystems = let zfs_device = d: { fsType = "zfs"; device = "rpool/${d}"; }; in {
     "/boot".device = "/dev/disk/by-label/boot";
-    "/" = zfs_device "local/root";
-    "/nix" = zfs_device "local/nix";
-    "/home" = zfs_device "safe/home";
-    "/persist" = zfs_device "safe/persist";
+    "/" = zfs_device "yeet";
+    "/keep" = zfs_device "keep";
+    "/nix" = zfs_device "nix";
   };
   
   swapDevices = [ ];

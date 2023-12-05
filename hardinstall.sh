@@ -61,24 +61,15 @@ format() {
   sudo cryptsetup luksFormat --batch-mode --verify-passphrase --verbose --label "${LABEL_LUKS}" "${ROOT_PART}"
   sudo cryptsetup luksOpen "${ROOT_PART}" "${LABEL_LUKS}"
 
-  zpool_create() {
-    sudo zpool create -O mountpoint=none rpool "/dev/mapper/${LABEL_LUKS}"
-  }
-
   zfs_create() {
     sudo zfs create -p -o mountpoint=legacy "${POOL}/${1}"
   }
 
-  zfs_snapshot() {
-    sudo zfs snapshot "${POOL}/local/root@empty"
-  }
-
-  zpool_create
-  zfs_create local/root
-  zfs_create local/nix
-  zfs_create safe/home
-  zfs_create safe/persist
-  zfs_snapshot
+  sudo zpool create -O mountpoint=none rpool "/dev/mapper/${LABEL_LUKS}"
+  zfs_create yeet
+  zfs_create keep
+  zfs_create nix
+  sudo zfs snapshot "${POOL}/yeet@yeeted"
 }
 
 mount_disks() {
