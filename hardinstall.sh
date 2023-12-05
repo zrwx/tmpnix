@@ -98,7 +98,7 @@ mount_disks() {
 
 install() {
   local flake='.#u'
-  sudo nixos-install --verbose --show-trace --flake "${flake}"
+  sudo nixos-install --install-bootloader --verbose --show-trace --flake "${flake}"
 }
 
 main() {
