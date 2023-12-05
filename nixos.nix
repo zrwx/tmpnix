@@ -7,7 +7,6 @@
   boot.initrd.postDeviceCommands = "zfs rollback rpool/local/root@blank";
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
-  boot.zfs.enabled = true;
   hardware.cpu.intel.updateMicrocode = true;
   hardware.enableRedistributableFirmware = true;
   # fileSystems."/boot".device = "/dev/disk/by-label/boot";
