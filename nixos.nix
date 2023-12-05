@@ -15,20 +15,17 @@
     "/keep" = zfs_device "keep";
     "/nix" = zfs_device "nix";
   };
-  
   swapDevices = [ ];
-
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
   networking.hostId = "4e98920d";
   networking.useDHCP = lib.mkDefault true;
   networking.firewall.enable = false;
-
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
   virtualisation.virtualbox.guest.enable = true;
-  time.timeZone = "Europe/Amsterdam";
+  time.timeZone = "UTC";
   i18n.defaultLocale = "en_US.UTF-8";
   users.users.root.initialPassword = "nixos";
   users.users.nixos = {
