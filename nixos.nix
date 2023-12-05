@@ -34,7 +34,9 @@
   virtualisation.virtualbox.guest.enable = true;
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";
+  users.users.root.initialPassword = "nixos";
   users.users.nixos = {
+    initialPassword = "nixos";
     isNormalUser = true;
     extraGroups = [ "wheel" ];
   };
