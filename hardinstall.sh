@@ -19,7 +19,7 @@ MNT_KEEP="${MNT}/keep"
 MNT_NIX="${MNT}/nix"
 ZFS_POOL='rpool'
 ZFS_FS_YEET="${ZFS_POOL}/yeet"
-ZFS_FS_KEEP="${ZFS_POOL}/yeet"
+ZFS_FS_KEEP="${ZFS_POOL}/keep"
 ZFS_FS_NIX="${ZFS_POOL}/nix"
 ZFS_FS_YEET_SNAPSHOT="${ZFS_FS_YEET}@yeeted"
 
@@ -38,8 +38,8 @@ assert_blockfile() {
 
 partition() {
   sudo sgdisk --zap-all "${DISK}"
-  sudo sgdisk --typecode="0:${TYPE_GUID_BOOT}" "${DISK}" --new='0:0:+1GiB'
-  sudo sgdisk --typecode="0:${TYPE_GUID_LUKS}" "${DISK}" --new='0:0:' 
+  sudo sgdisk --new='0:0:+1GiB' --change-name='0:boot' --typecode="0:${TYPE_GUID_BOOT}" "${DISK}"
+  sudo sgdisk --new='0:0:' --change-name='0:luks' --typecode="0:${TYPE_GUID_LUKS}" "${DISK}"
   local disks="$(lsblk -lpo 'NAME' | grep "${DISK}" | grep -v "^${DISK}$" | head -n 2)"
   PART_BOOT="$(printf '%s\n' "${disks}" | head -n 1)"
   PART_LUKS="$(printf '%s\n' "${disks}" | tail -n 1)"
