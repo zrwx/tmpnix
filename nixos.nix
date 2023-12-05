@@ -4,7 +4,7 @@
   boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.initrd.luks.devices."luks".device = "/dev/disk/by-label/luks";
-  boot.initrd.postDeviceCommands = "zfs rollback rpool/local/root@empty";
+  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback rpool/local/root@empty";
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
   hardware.cpu.intel.updateMicrocode = true;
