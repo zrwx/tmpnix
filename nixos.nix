@@ -10,17 +10,17 @@
   boot.zfs.enabled = true;
   hardware.cpu.intel.updateMicrocode = true;
   hardware.enableRedistributableFirmware = true;
-  fileSystems =
-    let
-      device = fsType: device: { inherit fsType device; };
-      zfs_device = d: device "zfs" "rpool/${d}";
-    in {
-      "boot" = device "vfat" "/dev/disk/by-label/boot";
-      "/" = zfs_device "local/root";
-      "/nix" = zfs_device "local/nix";
-      "/home" = zfs_device "safe/home";
-      "/persist" = zfs_device "safe/persist";
-    };
+  # fileSystems."/boot".device = "/dev/disk/by-label/boot";
+  # fileSystems."/" = { fsType = "zfs"; device = "rpool/yeet"; };
+  # fileSystems."/keep" = { fsType = "zfs"; device = "rpool/keep"; };
+  fileSystems = let zfs_device = d: { fsType = "zfs"; device = "rpool/${d}"; }; in {
+    "/boot".device = "/dev/disk/by-label/boot";
+    "/" = zfs_device "local/root";
+    "/nix" = zfs_device "local/nix";
+    "/home" = zfs_device "safe/home";
+    "/persist" = zfs_device "safe/persist";
+  };
+  
   swapDevices = [ ];
 
   networking.hostName = "nixos";
