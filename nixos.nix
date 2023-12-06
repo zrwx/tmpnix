@@ -33,6 +33,7 @@
     isNormalUser = true;
     extraGroups = [ "wheel" ];
   };
+  security.sudo.wheelNeedsPassword = false;
   services.openssh.enable = true;
   system.stateVersion = "23.11";
   environment.systemPackages = with pkgs; [
