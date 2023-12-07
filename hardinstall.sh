@@ -17,7 +17,7 @@ MNT_BOOT="${MNT}/boot"
 MNT_YEET="${MNT}/yeet"
 MNT_KEEP="${MNT}/keep"
 MNT_NIX="${MNT}/nix"
-ZFS_POOL='rpool'
+ZFS_POOL='zroot'
 ZFS_FS_YEET="${ZFS_POOL}/yeet"
 ZFS_FS_KEEP="${ZFS_POOL}/keep"
 ZFS_FS_NIX="${ZFS_POOL}/nix"
@@ -52,7 +52,7 @@ format() {
   sudo mkfs.fat -F 32 -n "${LABEL_BOOT}" "${PART_BOOT}"
   sudo cryptsetup luksFormat --batch-mode --verify-passphrase --verbose --label "${LABEL_LUKS}" "${PART_LUKS}"
   sudo cryptsetup luksOpen "${PART_LUKS}" "${LABEL_LUKS}"
-  sudo zpool create -O mountpoint=none rpool "/dev/mapper/${LABEL_LUKS}"
+  sudo zpool create -O mountpoint=none "${ZFS_POOL}" "/dev/mapper/${LABEL_LUKS}"
   sudo zfs create -p -o mountpoint=legacy "${ZFS_FS_YEET}"
   sudo zfs create -p -o mountpoint=legacy "${ZFS_FS_KEEP}"
   sudo zfs create -p -o mountpoint=legacy "${ZFS_FS_NIX}"
