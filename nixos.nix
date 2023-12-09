@@ -36,6 +36,8 @@
   security.sudo.wheelNeedsPassword = false;
   services.openssh.enable = true;
   system.stateVersion = "23.11";
+  programs.hyprland.enable = true;
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
   environment.systemPackages = with pkgs; [
     firefox
     git
