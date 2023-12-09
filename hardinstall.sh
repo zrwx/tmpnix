@@ -69,6 +69,11 @@ mount_disks() {
 
 install() {
   local flake='.#nixos'
+  sudo nixos-install --verbose --show-trace --flake "${flake}"
+}
+
+reinstall() {
+  local flake='.#nixos'
   sudo nixos-rebuild boot --install-bootloader --verbose --show-trace --flake "${flake}"
 }
 
