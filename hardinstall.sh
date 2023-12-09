@@ -38,8 +38,8 @@ assert_blockfile() {
 
 partition() {
   sudo sgdisk --zap-all "${DISK}"
-  sudo sgdisk --new='0:0:+1GiB' --change-name='0:boot' --typecode="0:${TYPE_GUID_BOOT}" "${DISK}"
-  sudo sgdisk --new='0:0:' --change-name='0:luks' --typecode="0:${TYPE_GUID_LUKS}" "${DISK}"
+  sudo sgdisk --new='0:0:+1GiB' --change-name="0:${LABEL_BOOT}" --typecode="0:${TYPE_GUID_BOOT}" "${DISK}"
+  sudo sgdisk --new='0:0:' --change-name="0:${LABEL_LUKS}" --typecode="0:${TYPE_GUID_LUKS}" "${DISK}"
   local disks="$(lsblk -lpo 'NAME' | grep "${DISK}" | grep -v "^${DISK}$" | head -n 2)"
   PART_BOOT="$(printf '%s\n' "${disks}" | head -n 1)"
   PART_LUKS="$(printf '%s\n' "${disks}" | tail -n 1)"
@@ -52,7 +52,23 @@ format() {
   sudo mkfs.fat -F 32 -n "${LABEL_BOOT}" "${PART_BOOT}"
   sudo cryptsetup luksFormat --batch-mode --verify-passphrase --verbose --label "${LABEL_LUKS}" "${PART_LUKS}"
   sudo cryptsetup luksOpen "${PART_LUKS}" "${LABEL_LUKS}"
-  sudo zpool create -O mountpoint=none "${ZFS_POOL}" "/dev/mapper/${LABEL_LUKS}"
+  # defaults included for posterity
+  # normalization for MacOS compatibility (beware github:nixos/nixpkgs#86432)
+  sudo zpool create \
+    -o ashift=12 \
+    -o autotrim=on \
+    -O mountpoint=none \
+    -O canmount=off \
+    -O devices=off \
+    -O atime=on \
+    -O relatime=on \
+    -O compression=lz4 \
+    -O dnodesize=legacy \
+    -O acltype=posixacl \
+    -O xattr=sa \
+    -O normalization=formD \
+    "${ZFS_POOL}" \
+    "/dev/mapper/${LABEL_LUKS}"
   sudo zfs create -p -o mountpoint=legacy "${ZFS_FS_YEET}"
   sudo zfs create -p -o mountpoint=legacy "${ZFS_FS_KEEP}"
   sudo zfs create -p -o mountpoint=legacy "${ZFS_FS_NIX}"
@@ -69,7 +85,7 @@ mount_disks() {
 
 install() {
   local flake='.#nixos'
-  sudo nixos-install --verbose --show-trace --flake "${flake}"
+  sudo nixos-install --verbose --show-trace --no-root-passwd --flake "${flake}"
 }
 
 reinstall() {

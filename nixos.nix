@@ -1,14 +1,19 @@
 { config, lib, pkgs, ... }:
 let
+  mainuser = "nixos";
+  mainuser_password = mainuser;
   zfs_root = "zroot";
+  zfs_yeet = "yeet";
+  zfs_yeeted_snapshot = "${zfs_root}/${zfs_yeet}@yeeted";
 in
 {
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod" ];
+  boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod" "nvme" ];
   boot.initrd.kernelModules = [ ];
   boot.initrd.luks.devices."luks".device = "/dev/disk/by-label/luks";
-  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback ${zfs_root}/yeet@yeeted";
+  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback ${zfs_yeeted_snapshot}";
+  boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
   hardware.cpu.intel.updateMicrocode = true;
@@ -31,14 +36,18 @@ in
   virtualisation.virtualbox.guest.enable = true;
   time.timeZone = "UTC";
   i18n.defaultLocale = "en_US.UTF-8";
-  users.users.root.initialPassword = "nixos";
+  users.mutableUsers = false;
+  users.users.root.initialPassword = mainuser_password;
   users.users.nixos = {
-    initialPassword = "nixos";
+    initialPassword = mainuser_password;
     isNormalUser = true;
     extraGroups = [ "wheel" ];
   };
   security.sudo.wheelNeedsPassword = false;
   services.openssh.enable = true;
+  services.zfs.autoScrub.enable = true;
+  services.zfs.trim.enable = true;
+  services.getty.autologinUser = mainuser;
   system.stateVersion = "23.11";
   programs.hyprland.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
