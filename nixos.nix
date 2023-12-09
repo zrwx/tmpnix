@@ -1,15 +1,19 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }:
+let
+  zfs_root = "zroot";
+in
+{
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.initrd.luks.devices."luks".device = "/dev/disk/by-label/luks";
-  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback rpool/yeet@yeeted";
+  boot.initrd.postDeviceCommands = lib.mkAfter "zfs rollback ${zfs_root}/yeet@yeeted";
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
   hardware.cpu.intel.updateMicrocode = true;
   hardware.enableRedistributableFirmware = true;
-  fileSystems = let zfs_device = d: { fsType = "zfs"; device = "rpool/${d}"; }; in {
+  fileSystems = let zfs_device = d: { fsType = "zfs"; device = "${zfs_root}/${d}"; }; in {
     "/boot".device = "/dev/disk/by-label/boot";
     "/" = zfs_device "yeet";
     "/keep" = zfs_device "keep";
