@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+excludes="-E node_modules -E .cache -E .mozilla -E Unity -E .gem -E gem -E .npm"
+alias fd_cmd='sudo fd -uua -tf -td $excludes . $HOME'
+fd_cmd | fzf

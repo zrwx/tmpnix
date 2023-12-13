@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+sudo fd -uua -tf -td . / | fzf

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+toggle_screen
+setbackground.sh &
+remaps &

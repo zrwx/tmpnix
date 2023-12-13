@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+PS4="\e[34m[$(basename "${0}")"':${FUNCNAME[0]:+${FUNCNAME[0]}():}${LINENO:-}]: \e[0m'
+IFS=$'\n\t'
+set -euo pipefail
+
+main() {
+  local internal='eDP-1'
+  local connected="$(xrandr | perl -ne 'print if /(.*) connected/')"
+  local active="$(perl -ne 'print if s/(.*) connected .*\d+x\d+\d+\d.*/\1/' <<<"${connected}")"
+  local external="$(perl -ne "print unless /${internal}/" <<<"${connected}")"
+  local external="$(perl -ne "print if s/(.*) connected.*/\1/g" <<<"${external}")"
+  local is_internal_active="$(perl -ne "print if /"${internal}"/" <<<"${active}")"
+
+  if [[ -z "${external}" ]]; then
+    xrandr --output "${internal}" --auto
+  elif [[ -z "${is_internal_active}" ]]; then
+    xrandr --output "${external}" --off --output "${internal}" --auto
+  else
+    xrandr --output "${internal}" --off --output "${external}" --auto
+  fi
+}
+
+main "$@"

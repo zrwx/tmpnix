@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+sudo fd -uua -td -E node_modules \
+                 -E .cache       \
+                 -E .mozilla     \
+                 -E Unity        \
+                 -E .gem         \
+                 -E .npm . $HOME \
+  | fzf

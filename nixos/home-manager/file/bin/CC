@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+PS4="\e[34m[$(basename "${0}")"':${FUNCNAME[0]:+${FUNCNAME[0]}():}${LINENO:-}]: \e[0m'
+IFS=$'\n\t'
+set -euo pipefail
+# set -x
+
+die() {
+  if [[ "$#" -gt 0 ]]; then
+    printf '\e[31m%s\e[0m\n' "${@}" >&2
+  fi
+  exit 1
+}
+
+err() {
+  die "Error: $(basename "${0}"): ${*}"
+}
+
+compile_c() {
+  local file="${1}"
+  local bin="${file}.elf"
+  local cmd=(clang -g -Wall -Wextra -Wpedantic --std=c2x -lm)
+  "${cmd[@]}" "${file}" -o "${bin}"
+  printf '%s' "${bin}"
+}
+
+compile_cpp() {
+  local file="${1}"
+  local bin="${file}.elf"
+  local cmd=(
+    g++ --std=c++2b -g -Wall -Wextra -Wpedantic
+    "-I${LOCAL_INC}/all"
+    "-I${LOCAL_INC}/std"
+  )
+  "${cmd[@]}" "${file}" -o "${bin}"
+  printf '%s' "${bin}"
+}
+
+compile_cpp2() {
+  local file="${1}"
+  local bin="${file}.cpp"
+  local cpp2_cmd=(cppfront -c)
+  "${cpp2_cmd[@]}" "${file}" -o "${bin}"
+  compile_cpp "${bin}"
+}
+
+compile_rs() {
+  local file="${1}"
+  local bin="${file}.elf"
+  local cmd=(rustc --edition 2024 -Z unstable-options)
+  # local cmd=(cargo +nightly -Zunstable-options -Zscript)
+  "${cmd[@]}" "${file}" -o "${bin}"
+  printf '%s' "${bin}"
+}
+
+compile_md() {
+  local file="${1}"
+  local bin="${file}.pdf"
+  local cmd=(
+    pandoc
+    --pdf-engine=xelatex
+    --variable fontfamily:helvetica
+    --variable pagestyle=empty
+    --variable geometry=top=10mm,left=10mm,right=10mm,bottom=10mm
+  )
+  "${cmd[@]}" "${file}" -o "${bin}"
+  printf '%s' "${bin}"
+}
+
+compile_coco() {
+  local file="${1}"
+  local bin="${file}.py"
+  local cmd=(coconut --strict --quiet --no-write --display)
+  "${cmd[@]}" "${file}" > "${bin}"
+  printf '%s' "${bin}"
+}
+
+compile_hs() {
+  local file="${1}"
+  local bin="${file}.elf"
+  local cmd=(ghc -g -no-keep-o-files -no-keep-hi-files)
+  "${cmd[@]}" "${file}" -o "${bin}" 
+  printf '%s' "${bin}"
+}
+
+compile_kt() {
+  local file="${1}"
+  local bin="${file}.jar"
+  kotlinc -include-runtime "${file}" -d "${bin}"
+  printf '%s' "${bin}"
+}
+
+compile_zig() {
+  zig
+}
+
+compile() {
+  local file="$(realpath "${1}")"
+  cd "$(dirname "${file}")"
+  case "${file}" in
+    *\.c) compile_c "${file}" ;;
+    *\.cc|*\.cpp|*\.hpp) compile_cpp "${file}" ;;
+    *\.cpp2) compile_cpp2 "${file}" ;;
+    *\.rs) compile_rs "${file}" ;;
+    *\.md) compile_md "${file}" ;;
+    *\.coco) compile_coco "${file}" ;;
+    *\.hs) compile_hs "${file}" ;;
+    *\.kt) compile_kt "${file}" ;;
+    *\.zig) compile_zig "${file}" ;;
+  esac
+}
+
+main() {
+  (compile "${@}")
+}
+
+main "${@}"

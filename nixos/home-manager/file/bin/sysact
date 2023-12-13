@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# A dmenu wrapper script for system functions.
+
+cmds=(
+  $'suspend\tsystemctl suspend && slock'
+  $'hibernate\tsystemctl hibernate && slock'
+  $'lock\tslock'
+  $'leave dwm\tpkill -TERM dwm'
+  $'refresh dwm\tpkill -HUP dwm'
+  $'reboot\tsudo -A reboot'
+  $'shutdown\tsudo -A shutdown -h now'
+)
+
+choice="$(printf '%s\n' "${cmds[@]}" | cut -d$'\t' -f 1 | dmenu)"
+cmd="$(printf '%s\n' "${cmds[@]}" | grep "^${choice}" | cut -d$'\t' -f 2)"
+eval "${cmd}"

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# crops out selection to clipboard
+# crops window if it is singly clicked
+
+maim -s | xclip -selection clipboard -t image/png

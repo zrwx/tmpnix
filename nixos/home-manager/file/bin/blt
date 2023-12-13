@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [[ "$1" == "d" ]]; then
+  bluetoothctl disconnect
+else
+  device="$(bluetoothctl devices | fzf | cut -d' ' -f 2)"
+  [[ -n "$device" ]] && bluetoothctl connect "$device"
+fi

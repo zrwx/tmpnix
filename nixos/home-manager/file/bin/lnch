@@ -1,0 +1,19 @@
+#!/usr/bin/zsh
+
+# lnch -- fuzzy launcher, directory switcher and file opener
+
+if [ "$1" = "r" ]; then
+  detach "$(ffx)";
+else
+  file="$(fd -uua -tf -td . $HOME | fzf )"
+
+  if [[ ! -n "$file" ]]; then return; fi
+
+  if [ -d "$file" ]; then
+    cd "$file"
+    $FILE
+  else
+    cd "$(dirname $file)"
+    rifle "$file"
+  fi
+fi

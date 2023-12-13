@@ -1,0 +1,20 @@
+#!/usr/bin/zsh
+
+verb_sel="selection"
+verb_win="window"
+verb_full="fullscreen"
+verb_sel_copy="$verb_sel (copy)"
+verb_win_copy="$verb_win (copy)"
+verb_full_copy="$verb_full (copy)"
+
+prompt="${verb_sel}\n${verb_win}\n${verb_full}\n${verb_sel_copy}\n${verb_win_copy}\n${verb_full_copy}"
+choice="$(echo "${prompt}" | dmenu -i -p "screenshot:")"
+
+case "${choice}" in
+  "${verb_sel}")       screenshot s ;;
+	"${verb_win}")       screenshot w ;;
+	"${verb_full}")      screenshot f ;;
+	"${verb_sel_copy}")  screenshot sc ;;
+	"${verb_win_copy}")  screenshot wc ;;
+	"${verb_full_copy}") screenshot fc ;;
+esac

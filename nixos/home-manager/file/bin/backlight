@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+case "$1" in
+  '-get') xbacklight -get ;;
+  '-set') xbacklight -set "$2" ;;
+  '-inc') xbacklight -inc "$2" ;;
+  '-dec')
+    curr=$(($(xbacklight -get | cut -d. -f 1) - $2))
+    curr=$((curr < 1 ? 1 : curr))
+    xbacklight -set "$curr"
+    ;;
+esac

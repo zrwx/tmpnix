@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+emojis="${XDG_DATA_HOME}/larbs/emoji"
+emoji="$(cut -f '1' -d ';' "${emojis}"  | fzf | sed "s/ .*//")"
+
+if [[ "${emoji}" != "" ]]; then
+  echo -n "${emoji}" | xclip -selection clipboard
+fi

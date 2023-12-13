@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+if [[ -z "$1" ]]; then exit; fi
+
+tail() {
+  pycmd="import sys; print(''.join(sys.stdin).split()[-1])"
+  python -c "$pycmd"
+}
+
+type() {
+  file --mime-type "${1}" | tail
+}
+
+clip() {
+  xclip -selection clipboard -in -target "$(type)" "${1}"
+}
+
+main() {
+  clip "${@}"
+}
+
+main "${@}"

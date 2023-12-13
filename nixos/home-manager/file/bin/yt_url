@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+url="$(xclip -sel clip -o)"
+mpv "${url}"

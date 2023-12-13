@@ -1,0 +1,3 @@
+{
+  tmux.enableShellIntegration = true;
+}

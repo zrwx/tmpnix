@@ -1,0 +1,5 @@
+#!/bin/sh
+
+file="$(fff)"
+
+[[ "$file" ]] && rifle "$file"

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+PS4="\e[34m[$(basename "${0}")"':${FUNCNAME[0]:+${FUNCNAME[0]}():}${LINENO:-}]: \e[0m'
+IFS=$'\n\t'
+set -euxo pipefail
+
+target() {
+  local screenshot_type="${1}"
+  local datetime="$(date '+%Y-%m-%d_%H-%M-%S')"
+  local target_dir="${INBOX:-${HOME}}/screenshot"
+  mkdir -p "${target_dir}"
+  local target_basename="${target_dir}/screenshot_${screenshot_type}_${datetime}"
+  local target_extension='.png'
+  local iteration=''
+  target_path() {
+    echo -n "${target_basename}${iteration}${target_extension}"
+  }
+  if [[ -e "$(target_path)" ]]; then
+    for ((i=1; i<100; i++)); do
+      iteration=".(${i})"
+      if [[ ! -e "$(target_path)" ]]; then
+        target_path
+        return
+      fi
+    done
+    exit 1
+  fi
+  target_path
+}
+
+clip() {
+  xclip -selection clipboard -t image/png
+}
+
+screenshot_selection() {
+  maim -s
+}
+
+screenshot_window() {
+  maim -i "$(xdotool getactivewindow)"
+}
+
+screenshot_full() {
+  maim
+}
+
+screenshot_type="${1:-f}"
+
+case "${screenshot_type}" in
+  s)  screenshot_selection > "$(target sel)" ;;
+  w)  screenshot_window > "$(target win)" ;;
+  f)  screenshot_full > "$(target full)" ;;
+  sc) screenshot_selection | clip ;;
+  wc) screenshot_window | clip;;
+  fc) screenshot_full | clip ;;
+esac

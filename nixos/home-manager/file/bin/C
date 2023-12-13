@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+PS4="\e[34m[$(basename "${0}")"':${FUNCNAME[0]:+${FUNCNAME[0]}():}${LINENO:-}]: \e[0m'
+IFS=$'\n\t'
+set -euo pipefail
+# set -x
+
+die() {
+  if [[ "$#" -gt 0 ]]; then
+    printf '\e[31m%s\e[0m\n' "${@}" >&2
+  fi
+  exit 1
+}
+
+err() {
+  die "Error: $(basename "${0}"): ${*}"
+}
+
+silent_delete() {
+  local file="${1}"
+  if [[ -e "${file}" && -f "${file}" ]]; then
+    (trash "${file}" &>/dev/null &)
+  fi
+}
+
+run_md() {
+  local file="${1}"
+  CC "${file}"
+}
+
+run_executably() {
+  local file="${1}"
+  shift
+  local res="$(CC "${file}" &>/dev/stdout)"
+  local status="${?}"
+  printf '%s\n' "${res}"
+  local bin="$(printf '%s\n' "${res}" | tail -n 1)"
+  if [[ "${status}" != 0 || -z "${bin}" || ! -e "${bin}" ]]; then
+    die $'\n'"[Error: $(basename "${0}")]: Could not run '${file}'."
+  fi
+  "${bin}" "$@"
+  silent_delete "${bin}"
+}
+
+run_rs() {
+  cargo -Z unstable-options -Zscript "${@}"
+}
+
+run_py() {
+  python "$@"
+}
+
+run_hy() {
+  hy "$@"
+}
+
+run_java() {
+  java "$@"
+}
+
+run_go() {
+  go run "$@"
+}
+
+run_js() {
+  node "$@"
+}
+
+run_ts() {
+  local file="${1}"
+  shift
+  local base="${file%.*}"
+  tsc "${file}"
+  run_js "${base}.js" "$@"
+}
+
+run_clj() {
+  clojure -M "$@"
+}
+
+run_lua() {
+  lua "$@"
+}
+
+run_kt() {
+  local file="${1}"
+  shift
+  local bin="$(CC "${file}")"
+  local bin="$(printf '%s\n' "${bin}" | tail -n 1)"
+  if [[ -z "${bin}" || ! -e "${bin}" ]]; then
+    err "no such executable: '${bin}'"
+  fi
+  java -jar "${bin}" "${@}"
+  silent_delete "${bin}"
+}
+
+run_rkt() {
+  racket "${@}"
+}
+
+run_scm() {
+  local file="${1}"
+  shift
+  local tmp_file="$(mktemp)"
+  {
+    printf '%s\n' '#lang scheme'
+    cat "${file}" 
+  } >> "${tmp_file}"
+  run_rkt "${tmp_file}" "${@}"
+  \rm "${tmp_file}"
+}
+
+run_sscm() {
+  local file="${1}"
+  shift
+  local tmp_file="$(mktemp)"
+  {
+    printf '%s\n' '#lang sweet-exp scheme'
+    cat "${file}" 
+  } >> "${tmp_file}"
+  run_rkt "${tmp_file}" "${@}"
+  \rm "${tmp_file}"
+}
+
+run_coco() {
+  local file="${1}"
+  shift
+  C "$(CC "${file}")" "${@}"
+}
+
+run_swift() {
+  swift "${@}"
+}
+
+run_tex() {
+  tectonic "${@}"
+}
+
+run_cr() {
+  crystal "${@}"
+}
+
+run_zig() {
+  zig run "${@}"
+}
+
+run() {
+  local file="$(realpath "${1}")"
+  # cd "$(dirname "${file}")"
+  case "${file}" in
+    *\.c|*\.cc|*\.cpp|*\.hpp|*\.cpp2|*\.hs) run_executably "${@}" ;;
+    *\.rs) run_rs "${@}" ;;
+    *\.md) run_md "${@}" ;;
+    *\.py) run_py "${@}" ;;
+    *\.hy) run_hy "${@}" ;;
+    *\.java) run_java "${@}" ;;
+    *\.go) run_go "${@}" ;;
+    *\.js|*\.cjs|*\.mjs) run_js "${@}" ;;
+    *\.ts) run_ts "${@}" ;;
+    *\.clj) run_clj "${@}" ;;
+    *\.lua) run_lua "${@}" ;;
+    *\.kt) run_kt "${@}" ;;
+    *\.rkt) run_rkt "${@}" ;;
+    *\.scm) run_scm "${@}" ;;
+    *\.sscm) run_sscm "${@}" ;;
+    *\.coco) run_coco "${@}" ;;
+    *\.swift) run_swift "${@}" ;;
+    *\.tex) run_tex "${@}" ;;
+    *\.cr) run_cr "${@}" ;;
+    *\.zig) run_zig "${@}" ;;
+  esac
+}
+
+main() {
+  (run "${@}")
+}
+
+main "${@}"

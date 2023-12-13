@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# The famous "get a menu of emojis to copy" script.
+
+# Must have xclip installed to even show menu.
+xclip -h 2>/dev/null || exit 1
+
+dmenu_cmd="dmenu -i -l 20"
+emoji_file="${XDG_DATA_HOME:-$HOME/.local/share}/larbs/emoji"
+
+chosen=$(cut -d ';' -f1 "$emoji_file"  | $dmenu_cmd | sed "s/ .*//")
+
+[[ "$chosen" != "" ]] || exit
+
+# If you run this command with an argument, it will automatically insert the character.
+if [[ "$1" != "" ]]; then
+	xdotool key Shift+Insert
+else
+	echo "$chosen" | tr -d '\n' | xclip -selection clipboard
+	notify-send "'$chosen' copied to clipboard." &
+fi

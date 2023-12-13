@@ -1,0 +1,32 @@
+#!/usr/bin/env zsh
+
+excludes=(
+  --exclude .cache
+  --exclude .gem
+  --exclude .mozilla
+  --exclude .npm
+  --exclude Unity
+  --exclude gem
+  --exclude node_modules
+)
+
+types=(
+  --type file
+  --type directory
+)
+
+search_path=(--search-path "${HOME}")
+
+path_type="--absolute-path"
+
+pattern="--glob"
+
+restrictions="--unrestricted"
+
+sudo fd ${restrictions} \
+  ${path_type} \
+  ${types} \
+  ${excludes} \
+  ${pattern} \
+  ${search_path} \
+  | fzf
